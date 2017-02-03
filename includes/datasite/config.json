@@ -1,0 +1,10 @@
+{
+  "db":{
+    "name":"hellomundo",
+    "host":"localhost",
+    "user":"root",
+    "password":""
+  },
+  "name":"??",
+  "version":0.1
+}
