@@ -36,11 +36,14 @@ loadDirecciones();
         if(direccion)
         {
 
+            var id= clone.find("[data-name='id']");
+            id.attr("name","direcciones["+direccionIndex+"][direccionId]");
 
             calle.val(direccion.calle);
          numero.val(direccion.numero);
          piso.val(direccion.piso);
          depto.val(direccion.depto);
+            id.val(direccion.id);
 
 
         }
@@ -82,7 +85,36 @@ loadDirecciones();
              url:"clientes-data.php?act=list&id=<?php echo $_GET["id"]; ?>",
                 method:"get",
                 dataType:"json",
-                success:fun
+                success:function(response)
+                {
+
+                var cliente=  response.data[0];
+
+
+                    $.each(cliente,function(k,v)
+                    {
+                        if(!$.isArray(v))
+                        {
+                            $("[name='"+k+"']").val(v);
+
+
+                        }
+                        else
+                        {
+                            console.log(v);
+                            $.each(v,function(clave,valor)
+                            {
+                                console.log(valor);
+                                addDireccion(valor);
+
+                            });
+
+                        }
+
+
+
+                    });
+                }
             }
         );
 
@@ -151,6 +183,7 @@ loadDirecciones();
                    <input data-name="depto" >
                </div>
                <input data-name="orden" value="0" hidden>
+               <input hidden data-name="id">
 
            </div>
             <div class="cloned">

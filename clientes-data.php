@@ -37,20 +37,20 @@ switch ($act)
             {
                 $clienteId=$cliente["clienteId"];
 
-                $clientes[$clienteId]["nombre"]=$cliente["clienteNombre"];
-                $clientes[$clienteId]["apellido"]=$cliente["clienteApellido"];
-                $clientes[$clienteId]["notas"]=$cliente["clienteNotas"];
-                $clientes[$clienteId]["creacion"]=$cliente["clienteCreacion"];
-                $clientes[$clienteId]["modificacion"]=$cliente["clienteModificacion"];
+                $clientes[$clienteId]["clienteNombre"]=$cliente["clienteNombre"];
+                $clientes[$clienteId]["clienteApellido"]=$cliente["clienteApellido"];
+                $clientes[$clienteId]["clienteNotas"]=$cliente["clienteNotas"];
+                $clientes[$clienteId]["clienteCreacion"]=$cliente["clienteCreacion"];
+                $clientes[$clienteId]["clienteModificacion"]=$cliente["clienteModificacion"];
 
                 if($cliente["direccionId"])
                 {
                     $direccion["id"]=$cliente["direccionId"];
                     $direccion["numero"]=$cliente["direccionNumero"];
-                    $direccion["calle"]=$parada["direccionCalle"];
-                    $direccion["piso"]=$parada["direccionPiso"];
-                    $direccion["depto"]=$parada["direccionDepto"];
-                    $direccion["notas"]=$parada["direccionNotas"];
+                    $direccion["calle"]=$cliente["direccionCalle"];
+                    $direccion["piso"]=$cliente["direccionPiso"];
+                    $direccion["depto"]=$cliente["direccionDepto"];
+                    $direccion["notas"]=$cliente["direccionNotas"];
 
 
                     $clientes[$clienteId]["direcciones"][]=$direccion;
@@ -101,6 +101,8 @@ switch ($act)
             $db->query($sqlClientes);
             $error+=$db->errno;
 
+
+
             $clienteId=$db->insert_id;
 
 
@@ -124,9 +126,7 @@ switch ($act)
                     }
                     $sqlDirecciones = rtrim($sqlDirecciones, ",");
 
-                    if ($direccion["id"]) {
-                        $sqlDirecciones .= ",direccionId={$id}";
-                    }
+
 
                     $db->query($sqlDirecciones);
                     $error+=$db->errno;
@@ -168,6 +168,9 @@ switch ($act)
                 }
 
 
+                $result["sql"][]=$sqlClientes;
+                $result["sql"][]=$sqlClientesDirecciones;
+                $result["sql"][]=$sqlDirecciones;
                 $db->close();
 
             }
