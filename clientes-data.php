@@ -74,113 +74,103 @@ switch ($act)
 
     case 'add':
 
-        $validateData=validateData($_POST) ;
-        if($validateData===true)
-        {
-            $sql="REPLACE INTO clientes SET ";
+        $validateData=validateData($_POST);
+
+
+        if($validateData===true) {
+            $sqlClientes = "REPLACE INTO clientes SET ";
+
 
             foreach ($_POST as $k=>$v)
             {
                 if(!is_array($v)&&!empty($v))
                 {
-                    $sql.="{$k}='{$v}',";
+                    $sqlClientes.="{$k}='{$v}',";
                 }
-
             }
-            $sql=rtrim($sql,",");
+
+            $sqlClientes=rtrim($sqlClientes,",");
 
             if($id)
             {
-                $sql.=",clienteId={$id}";
+                $sqlClientes.=",clienteId={$id}";
             }
 
-            $result["sql"][]=$sql;
-            $result["data"]=$_POST;
-            if($res = $db->query($sql))
-            {
 
-                $clienteId=$db->insert_id;
+            $error=0;
+            $db->query($sqlClientes);
+            $error+=$db->errno;
+
+            $clienteId=$db->insert_id;
 
 
+            if(count($_POST["direcciones"])>0) {
 
-                if(count($_POST["direcciones"])>0)
-                {
 
-                    foreach ($_POST["direcciones"] as $direccion)
-                    {
+                $sqlClientesDirecciones = "REPLACE INTO clientes_direcciones ( `cliente`, `direccion`,clientes_direcciones_order) values ";
 
-                        $sql="REPLACE INTO direcciones SET ";
 
-                        foreach ($direccion as $k=>$v)
-                        {
-                            if(!is_array($v))
-                            {
-                                if(!empty($v))
-                                {
-                                    $sql.="{$k}='{$v}',";
-                                }
+                foreach ($_POST["direcciones"] as $direccion) {
+                    $sqlDirecciones="REPLACE INTO direcciones SET ";
 
+                    foreach ($direccion as $k => $v) {
+                        if (!is_array($v)) {
+                            if (!empty($v)) {
+                                $sqlDirecciones .= "{$k}='{$v}',";
                             }
 
-                        }
-                        $sql=rtrim($sql,",");
-
-                        if($direccion["id"])
-                        {
-                            $sql.=",direccionId={$id}";
-                        }
-                        $result["sql"][]=$sql;
-                        if($res=$db->query($sql))
-                        {
-                            $sql="REPLACE INTO clientes_direcciones ( `cliente`, `direccion`,clientes_direcciones_order) values ";
-
-                            $sql.=" ({$clienteId},{$db->insert_id},{$direccion["orden"]}),";
-
-
-
-
-                            $sql=rtrim($sql,",");
-
-
-                            $result["sql"][]=$sql;
-                            if($res=$db->query($sql))
-                            {
-                                $result["success"]=$db->insert_id;
-                            }
-                            else
-                            {
-                                $result["error"]=$db->errno;
-                            }
-                        }
-                        else
-                        {
-                            $result["error"]=$db->error;
                         }
 
                     }
+                    $sqlDirecciones = rtrim($sqlDirecciones, ",");
 
+                    if ($direccion["id"]) {
+                        $sqlDirecciones .= ",direccionId={$id}";
+                    }
+
+                    $db->query($sqlDirecciones);
+                    $error+=$db->errno;
+
+
+
+                    $sqlClientesDirecciones.= " ({$clienteId},{$db->insert_id},{$direccion["orden"]}),";
+
+
+                }
+
+
+                $sqlClientesDirecciones=rtrim($sqlClientesDirecciones,",");
+                $db->query($sqlClientesDirecciones);
+                $error+=$db->errno;
+
+
+
+                if($error>0)
+                {
+                    $db->rollback();
+                    $result["error"]=true;
 
                 }
                 else
                 {
-                    $result["success"]=$db->insert_id;
+
+                    $result["success"]=$clienteId;
+
 
                 }
 
+                $commitResult=$db->commit();
 
 
+                if(!$commitResult)
+                {
+                    $result["error"]=$db->errno;
+                }
 
 
+                $db->close();
 
             }
-            else
-            {
-                $result["error"]=$db->errno;
-            }
-
-
-
-
 
 
 

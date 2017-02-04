@@ -73,6 +73,24 @@ loadDirecciones();
 
     $(document).ready(function()
     {
+        <?php if($isEdit)
+        {
+        ?>
+
+        $.ajax(
+            {
+             url:"clientes-data.php?act=list&id=<?php echo $_GET["id"]; ?>",
+                method:"get",
+                dataType:"json",
+                success:fun
+            }
+        );
+
+
+
+
+        <?php
+        }?>
 
     });
     $(document).on("submit",".add form",function (e) {
